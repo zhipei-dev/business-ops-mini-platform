@@ -87,6 +87,13 @@ Open `http://127.0.0.1:8080`.
 
 All data is synthetic and local. No marketplace account, supplier account, customer system, credential, or production API is required.
 
+
+## Configuration
+
+The checked-in local defaults are in `src/main/resources/application.properties`. For a different local/demo environment, standard Spring Boot environment variables can override them, including `SERVER_PORT`, `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD`.
+
+Do not commit real credentials. The default repository configuration uses local H2 demonstration storage only.
+
 ## Browser validation
 
 Install E2E dependencies once:
@@ -145,3 +152,9 @@ See:
 ## License
 
 MIT.
+## Handoff and support
+
+- [Demo deployment and handoff](DEPLOYMENT.md)
+- [Support](SUPPORT.md)
+- [Security and limitations](docs/SECURITY_AND_LIMITATIONS.md)
+
