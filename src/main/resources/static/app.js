@@ -1,0 +1,17 @@
+const api = '/api';
+const message = document.querySelector('#message');
+const safe = (tag, value) => { const e = document.createElement(tag); e.textContent = String(value ?? ''); return e; };
+async function request(path, options = {}) { const r = await fetch(api + path, {headers:{'Content-Type':'application/json'}, ...options}); if (!r.ok) { const b=await r.json().catch(()=>({error:'Request failed'})); throw Error(b.error); } return r.status === 204 ? null : r.json(); }
+function actionButton(label, fn) { const b=safe('button',label); b.type='button'; b.onclick=fn; return b; }
+function row(cells) { const tr=document.createElement('tr'); cells.forEach(c=>{const td=document.createElement('td'); if(c instanceof Node) td.append(c); else td.append(safe('span',c)); tr.append(td);}); return tr; }
+function setRows(id, rows) { const target=document.querySelector(id); target.replaceChildren(...rows); }
+async function transition(kind,id,action){try{await request(`/${kind}/${id}/${action}`,{method:'POST'});await refresh()}catch(e){message.textContent=e.message}}
+async function refresh(){ try { message.textContent=''; const [products,purchases,sales,inventory,audit]=await Promise.all(['products','purchase-orders','sales-orders','inventory','audit'].map(x=>request('/'+x)));
+ document.querySelectorAll('.product-select').forEach(s=>s.replaceChildren(...products.map(p=>{const o=safe('option',`${p.sku} — ${p.name}`);o.value=p.id;return o;})));
+ setRows('#products',products.map(p=>row([p.sku,p.name,p.unitPrice])));
+ setRows('#purchases',purchases.map(o=>{const a=document.createElement('span');if(o.status==='DRAFT')a.append(actionButton('Submit',()=>transition('purchase-orders',o.id,'submit')));if(o.status==='SUBMITTED')a.append(actionButton('Approve',()=>transition('purchase-orders',o.id,'approve')));if(o.status==='APPROVED')a.append(actionButton('Receive',()=>transition('purchase-orders',o.id,'receive')));return row([o.id,o.supplierName,Object.assign(safe('span',o.status),{className:'badge'}),o.totalQuantity,a])}));
+ setRows('#sales',sales.map(o=>{const a=document.createElement('span');if(o.status==='DRAFT')a.append(actionButton('Confirm',()=>transition('sales-orders',o.id,'confirm')));if(o.status==='CONFIRMED')a.append(actionButton('Fulfill',()=>transition('sales-orders',o.id,'fulfill')));return row([o.id,o.customerName,Object.assign(safe('span',o.status),{className:'badge'}),o.totalQuantity,a])}));
+ setRows('#inventory',inventory.map(i=>row([i.sku,i.name,i.onHand]))); document.querySelector('#audit').replaceChildren(...audit.map(a=>safe('li',`${a.entityType} #${a.entityId}: ${a.action}`))); }catch(e){message.textContent=e.message} }
+function orderForm(id, path, partyKey){document.querySelector(id).onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{await request(path,{method:'POST',body:JSON.stringify({[partyKey]:f.get('party'),items:[{productId:Number(f.get('productId')),quantity:Number(f.get('quantity')),unitPrice:Number(f.get('unitPrice'))}]})});e.target.reset();await refresh()}catch(x){message.textContent=x.message}}}
+document.querySelector('#product-form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{await request('/products',{method:'POST',body:JSON.stringify({sku:f.get('sku'),name:f.get('name'),unitPrice:Number(f.get('unitPrice'))})});e.target.reset();await refresh()}catch(x){message.textContent=x.message}};
+orderForm('#purchase-form','/purchase-orders','supplierName');orderForm('#sales-form','/sales-orders','customerName');refresh();
