@@ -4,6 +4,10 @@ A portfolio-grade Spring Boot MVP for a common small-business operations problem
 
 This project demonstrates a bounded business workflow rather than a generic CRUD application.
 
+## Client fit
+
+Relevant proof for small internal business systems, admin/operations tools, purchasing and inventory workflows, transactional CRUD/API work, and projects where the client needs explicit business rules, auditability, migrations, and browser-tested delivery.
+
 ## What it proves
 
 - Explicit purchase and sales state machines.
