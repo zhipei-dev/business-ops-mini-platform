@@ -20,6 +20,12 @@ Relevant proof for small internal business systems, admin/operations tools, purc
 - Automated domain, service/API, migration, and browser E2E verification.
 - CI and Dependabot configuration for Maven and npm dependencies.
 
+## UI proof
+
+![Business operations workflow after purchase receipt and sales fulfillment](docs/assets/business-ops-workflow.png)
+
+*Real local browser capture from the verified Playwright flow using synthetic purchasing, inventory, sales, and audit data.*
+
 ## Business workflow
 
 Purchase:
